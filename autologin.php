@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS autologin(
 	ID   int DEFAULT '1',
 	user_name VARCHAR (30)     NOT NULL,
 	user_pass VARCHAR (30)     NOT NULL,
-	path  CHAR (40) NOT NULL,    
+	path  VARCHAR (50) NOT NULL,    
 	PRIMARY KEY (ID)
 )
 ";
