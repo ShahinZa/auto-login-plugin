@@ -44,7 +44,7 @@ function autologin_init(){
 
 		echo "
 		<label>Password:</label>
-		<input type='password' name='password_al' placeholder=$upass />
+		<input type='password' name='password_al' placeholder='Password' />
 		";
 
 		echo "
