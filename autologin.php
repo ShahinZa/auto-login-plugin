@@ -1,10 +1,9 @@
 <?php
 /*
 Plugin Name: Auto Login
-Plugin URI: https://experiencedmg.com/
+Plugin URI: 
 Version: 1.0.0
-Author: Douglas Marketing Group
-Author URI: https://experiencedmg.com/
+Author: Shahin Zanbaghi
 */
 
 add_action('admin_menu', 'al_plugin_setup_menu');
