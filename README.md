@@ -7,7 +7,7 @@ It works with only 2 URLs!!! :+1:
 Upload the folder to the plugin folder of your WordPress.
 
 ```bash
-Recommended to change the default Username, Password and Path
+Recommended to change the default Path
 
 The default path is: autologin
 YOURDOMAIN.COM/?create=PATH
