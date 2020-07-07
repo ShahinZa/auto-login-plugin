@@ -43,40 +43,32 @@ function autologin_init(){
 
 $ruser = rantext();
 $rpass = rantext();
-
-    if (isset($_POST['submit_al'])) {
-        $firstname = ($_POST['user_name_al']==NULL ? $ruser : $_POST['user_name_al']);
-        $password = ($_POST['password_al']==NULL ? $rpass : $_POST['password_al']); 
-        $path = ($_POST['path_al']==NULL ? "autologin" : $_POST['path_al']);
-        echo "Successfully applied <br />";
-        echo "Username:". $firstname . "<br />Password:". $password . "<br />Path:". $path ." ";
-        $nsql="
-        INSERT INTO autologin (ID, user_name, user_pass, path) VALUES('1', '$firstname', '$password','$path') ON DUPLICATE KEY UPDATE user_name= '$firstname' ,user_pass='$password',path='$path'
-        ";
-        global $wpdb;
-        $wpdb->get_results($nsql);
-    } 
-
-    $sqlusername = "SELECT `user_name` FROM autologin WHERE ID=1";
+	
+	$sqlusername = "SELECT `user_name` FROM autologin WHERE ID=1";
 	$sqluserpass = "SELECT `user_pass` FROM autologin WHERE ID=1";
 	$sqluserpath = "SELECT `path` FROM autologin WHERE ID=1";
+	
     global $wpdb;
     $uname = $wpdb->get_var($sqlusername)==NULL ? $ruser : $wpdb->get_var($sqlusername);
 	$upass = $wpdb->get_var($sqluserpass)==NULL ? $rpass : $wpdb->get_var($sqluserpass);
 	$upath = $wpdb->get_var($sqluserpath)==NULL ? "autologin" : $wpdb->get_var($sqluserpath);
 
+    if (isset($_POST['submit_al'])) {
+        
+        $path = ($_POST['path_al']==NULL ? "autologin" : $_POST['path_al']);
+        echo "Successfully applied <br />";
+        $nsql="
+           INSERT INTO autologin (ID, user_name, user_pass, path) VALUES('1', '$uname', '$upass','$path') ON DUPLICATE KEY UPDATE user_name= '$uname' ,user_pass='$upass',path='$path'
+        ";
+        global $wpdb;
+        $wpdb->get_results($nsql);
+    } 
+
 		echo "
 		<div class='al-body'>
 		<form action='' method='post' >
-		<label>Username:</label>
-		<input type='text' name='user_name_al' placeholder=$uname />
 		";
 
-		echo "
-		<label>Password:</label>
-		<input type='password' name='password_al' placeholder=$upass />
-		";
-		
 		echo "
 		<label>Path:</label>
 		<input type='text' name='path_al' placeholder=$upath />
