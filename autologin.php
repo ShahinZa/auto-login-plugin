@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: Auto Login
-Plugin URI: https://experiencedmg.com/
+Plugin URI: -
 Version: 1.0.0
-Author: Douglas Marketing Group
+Author: Shahin Zanbaghi
 Description: Auto login WordPress plugin.
 */
 
@@ -67,6 +67,17 @@ $rpass = rantext();
         $wpdb->get_results($nsql);
 		header('Location: '.$_SERVER['REQUEST_URI']);
     } 
+	
+	 if (isset($_POST['submit_rand'])) {
+        
+        $path = md5(rantext());
+        $nsql="
+           INSERT INTO autologin (ID, user_name, user_pass, path) VALUES('1', '$uname', '$upass','$path') ON DUPLICATE KEY UPDATE user_name= '$uname' ,user_pass='$upass',path='$path'
+        ";
+        global $wpdb;
+        $wpdb->get_results($nsql);
+		header('Location: '.$_SERVER['REQUEST_URI']);
+    } 
 
 	echo '
 	<h2 class="mt-3">Auto Login</h2>
@@ -77,6 +88,9 @@ $rpass = rantext();
               <input id="path" type="text" name="path_al" class="form-control" placeholder= ' . $upath . '>
               <div class="input-group-append">
                 <button type="submit" name="submit_al" class="btn btn-success mt-3">Save</button>
+              </div>
+			  <div class="input-group-append">
+                <button type="submit" name="submit_rand" class="btn btn-primary mt-3">Gerate Random Hashed Path</button>
               </div>
             </div>
 			</div>
