@@ -142,7 +142,7 @@ $rpass = rantext();
 		  
 	';
 		
-	echo "<br /><samp>Step 1 - Creating the account: <span class='badge badge-info'>(Only one time you need to create an account)</span></samp><br/>
+	echo "<br /><samp>Step 1 - Creating the account: <span class='badge badge-info'>(Only one time you need to create a user)</span></samp><br/>
 	
 	<kbd id='stepone'>".$_SERVER['HTTP_HOST']."/?create=$upath</kbd> 
 	<br /><br /> 
