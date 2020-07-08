@@ -20,7 +20,7 @@ Recommended to change the default Path
 The default path is: autologin
 YOURDOMAIN.COM/?create=PATH
 ```
-
+## The Plugin Interface
 ![alt text](https://github.com/ShahinZa/auto-login-plugin/blob/master/plugin-image.png?raw=true)
 
 ## Usage
