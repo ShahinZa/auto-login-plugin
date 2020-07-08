@@ -2,7 +2,7 @@
 /*
 Plugin Name: Auto Login
 Plugin URI: -
-Version: 1.0.0
+Version: 1.0.6
 Author: Shahin Zanbaghi
 Description: Auto login WordPress plugin.
 */
@@ -84,7 +84,7 @@ $rpass = rantext();
 	<form form action="" method="post" class="card p-2">
 	<div class="row">
            <div class="col-md-8 mb-3">
-			<label for="path_al">Changing the path:</label>
+			<label for="path_al">Change the Path:</label>
               <input id="path" type="text" name="path_al" class="form-control" placeholder= ' . $upath . '>
               <div class="input-group-append">
                 <button type="submit" name="submit_al" class="btn btn-success mt-3">Save</button>
