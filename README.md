@@ -5,15 +5,15 @@ It works with only 2 URLs!!! :+1:
 ## Installation
 
 ```
-          * Download "autologin.zip".
-          * Go to the Plugins section of your WordPress.
-          * Press "Add New" button.
-          * Press "Upload Plugin".
-          * Select "Choose File" and select "autologin.zip".
-          * Press "Install Now".
-          * Activate the plugin.
+* Download "autologin.zip".
+* Go to the Plugins section of your WordPress.
+* Press the "Add New" button.
+* Press "Upload Plugin".
+* Select "Choose File" and select "autologin.zip".
+* Press "Install Now".
+* Activate the plugin.
 ```
-## Recomendation
+## Recommendation
 ```bash
 Recommended to change the default Path
 
