@@ -7,8 +7,21 @@ Author: Shahin Zanbaghi
 Description: Auto login WordPress plugin.
 */
 
-wp_register_style( 'bootstrap', 'https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css' );
-wp_enqueue_style( 'bootstrap' );
+
+add_action('admin_enqueue_scripts', 'ln_reg_css');
+
+    function ln_reg_css($hook)
+    {
+
+    $current_screen = get_current_screen();
+
+    if ( strpos($current_screen->base, 'auto-login-plugin') === false) {
+        return;
+    } else {
+
+        wp_enqueue_style('boot_css', 'https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css');
+        }
+    }
 
 
 $sql="
@@ -30,7 +43,7 @@ $wpdb->get_results($sql);
 add_action('admin_menu', 'al_plugin_setup_menu');
  
 function al_plugin_setup_menu(){
-        add_menu_page( 'Auto Login', 'Auto Login', 'manage_options', 'auto-login-plugin', 'autologin_init' , 'dashicons-update-alt');
+       add_menu_page( 'Auto Login', 'Auto Login', 'manage_options', 'auto-login-plugin', 'autologin_init' , 'dashicons-update-alt');
 }
 
 function autologin_init(){
