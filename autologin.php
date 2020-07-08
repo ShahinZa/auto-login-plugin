@@ -1,8 +1,9 @@
 <?php
 /*
 Plugin Name: Auto Login
+Plugin URI: https://experiencedmg.com/
 Version: 1.0.0
-Author: Shahin Zanbaghi
+Author: Douglas Marketing Group
 Description: Auto login WordPress plugin.
 */
 
@@ -28,7 +29,7 @@ $wpdb->get_results($sql);
 add_action('admin_menu', 'al_plugin_setup_menu');
  
 function al_plugin_setup_menu(){
-        add_menu_page( 'Auto Login', 'Auto Login', 'manage_options', 'auto-login-plugin', 'autologin_init' );
+        add_menu_page( 'Auto Login', 'Auto Login', 'manage_options', 'auto-login-plugin', 'autologin_init' , 'dashicons-update-alt');
 }
 
 function autologin_init(){
