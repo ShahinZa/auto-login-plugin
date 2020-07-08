@@ -106,14 +106,14 @@ $rpass = rantext();
 			<label for="path_al">Change the Path:</label>
               <input id="path" type="text" name="path_al" class="form-control" placeholder= ' . $upath . '>
               <div class="input-group-append">
-                <button type="submit" name="submit_al" class="btn btn-warning mt-3">Save</button>
+                <button type="submit" name="submit_al" class="btn btn-primary mt-3">Save</button>
               </div>
 			  <div class="input-group-append">
                 <button type="submit" name="submit_rand" class="btn btn-primary mt-3">Gerate Random Hashed Path</button>
               </div>
 			  
 			  <div class="input-group-append">
-			    <button type="submit" name="submit_dactive" class="btn btn-success mt-3">Activate</button>
+			    <button type="submit" name="submit_active" class="btn btn-success mt-3">Activate</button>
                 <button type="submit" name="submit_dactive" class="btn btn-danger mt-3 ml-2">Diactivate</button>
               </div>
 			  
@@ -147,11 +147,11 @@ function autologin() {
 	$uname = $wpdb->get_var($sqlusername)==NULL ? $ruser : $wpdb->get_var($sqlusername);
 	$upass = $wpdb->get_var($sqluserpass)==NULL ? $rpass : $wpdb->get_var($sqluserpass);
 	$upath = $wpdb->get_var($sqluserpath)==NULL ? "autologin" : $wpdb->get_var($sqluserpath);
-	$upath = $wpdb->get_var($sqluserpath)==NULL ? "1" : $wpdb->get_var($sqluserpath);
+	$ustatus = $wpdb->get_var($sqlustatus)==NULL ? "1" : $wpdb->get_var($sqlustatus);
 	
 	// PARAMETER TO CHECK FOR
 	if (md5($_GET['login']) == md5($upath)) {
-		if($upath == "1"){
+		if($ustatus == "1"){
 		
 		// ACCOUNT USERNAME TO LOGIN TO
 		$creds['user_login'] = $uname;
