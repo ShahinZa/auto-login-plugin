@@ -1,18 +1,21 @@
 <?php
 /*
 Plugin Name: Auto Login
-Plugin URI: -
 Version: 1.0.0
 Author: Shahin Zanbaghi
-Author URI: -
+Description: Auto login WordPress plugin.
 */
+
+wp_register_style( 'bootstrap', 'https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css' );
+wp_enqueue_style( 'bootstrap' );
+
 
 $sql="
 CREATE TABLE IF NOT EXISTS autologin(
 	ID   int DEFAULT '1',
 	user_name VARCHAR (30)     NOT NULL,
 	user_pass VARCHAR (30)     NOT NULL,
-	path  VARCHAR (50) NOT NULL,    
+	path  CHAR (40) NOT NULL,    
 	PRIMARY KEY (ID)
 )
 ";
@@ -56,39 +59,33 @@ $rpass = rantext();
     if (isset($_POST['submit_al'])) {
         
         $path = ($_POST['path_al']==NULL ? "autologin" : $_POST['path_al']);
-        echo "Successfully applied <br />";
         $nsql="
            INSERT INTO autologin (ID, user_name, user_pass, path) VALUES('1', '$uname', '$upass','$path') ON DUPLICATE KEY UPDATE user_name= '$uname' ,user_pass='$upass',path='$path'
         ";
         global $wpdb;
         $wpdb->get_results($nsql);
+		header('Location: '.$_SERVER['REQUEST_URI']);
     } 
 
-		echo "
-		<div class='al-body'>
-		<form action='' method='post' >
-		";
-
-		echo "
-		<label>Path:</label>
-		<input type='text' name='path_al' placeholder=$upath />
-		";
-
-		echo "
-		<input type='submit' value='Save' name='submit_al' />
-		</form>
-		</div><br />
-		";
+	echo '
+	<h2 class="mt-3">Auto Login</h2>
+	<form form action="" method="post" class="card p-2">
+	<div class="row">
+           <div class="col-md-8 mb-3">
+			<label for="path_al">Changing the path:</label>
+              <input id="path" type="text" name="path_al" class="form-control" placeholder= ' . $upath . '>
+              <div class="input-group-append">
+                <button type="submit" name="submit_al" class="btn btn-success mt-3">Save</button>
+              </div>
+            </div>
+			</div>
+     </form>
+		  
+	';
 		
-		echo "Step 1: ".$_SERVER['HTTP_HOST']."/?create=$upath <br />Step 2: ".$_SERVER['HTTP_HOST']."/?login=$upath";
-		
-		echo "
-		<style>
-			.al-body{
-				margin: 30px;
-			}
-		</style>
-		";
+	echo "<br /><samp>Step 1 - Creating the account (Only one time): </samp><br/><kbd>".$_SERVER['HTTP_HOST']."/?create=$upath</kbd> <br /> <br /> <samp>Step 2 - Accessing the website without login:</samp><br/> <kbd>".$_SERVER['HTTP_HOST']."/?login=$upath </kbd>";
+	
+	echo "<!-- <br /><div class='mt-5'><code>By:Shahin Zanbaghi</code></div> -->";
 
 }
 
