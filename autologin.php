@@ -65,11 +65,15 @@ $rpass = rantext();
 	$sqlusername = "SELECT `user_name` FROM autologin WHERE ID=1";
 	$sqluserpass = "SELECT `user_pass` FROM autologin WHERE ID=1";
 	$sqluserpath = "SELECT `path` FROM autologin WHERE ID=1";
+	$sqlustatus = "SELECT `status` FROM autologin WHERE ID=1";
 	
     global $wpdb;
     $uname = $wpdb->get_var($sqlusername)==NULL ? $ruser : $wpdb->get_var($sqlusername);
 	$upass = $wpdb->get_var($sqluserpass)==NULL ? $rpass : $wpdb->get_var($sqluserpass);
 	$upath = $wpdb->get_var($sqluserpath)==NULL ? "autologin" : $wpdb->get_var($sqluserpath);
+	$ustatus = $wpdb->get_var($sqlustatus)==NULL ? "1" : $wpdb->get_var($sqlustatus);
+
+
 
     if (isset($_POST['submit_al'])) {
         
@@ -110,6 +114,8 @@ $rpass = rantext();
         $wpdb->get_results($asql);
 		header('Location: '.$_SERVER['REQUEST_URI']);
     } 
+	
+		if($ustatus == 1) {$sts = "On";$statcol="light";}else{$sts = "Off";$statcol="dark";}
 
 	echo '
 	<h2 class="mt-3">Auto Login</h2>
@@ -128,10 +134,10 @@ $rpass = rantext();
 			  <div class="input-group-append">
 			    <button type="submit" name="submit_active" class="btn btn-success mt-3">Activate</button>
                 <button type="submit" name="submit_dactive" class="btn btn-danger mt-3 ml-2">Diactivate</button>
-              </div>
-			  
+              </div>		  
             </div>
 			</div>
+			<div class="badge badge-'.$statcol.'" >Status: '. $sts .'</div>
      </form>
 		  
 	';
