@@ -13,6 +13,8 @@ The default path is: autologin
 YOURDOMAIN.COM/?create=PATH
 ```
 
+![alt text](https://github.com/ShahinZa/auto-login-plugin/blob/master/image.jpg?raw=true)
+
 ## Usage
 
 ```
