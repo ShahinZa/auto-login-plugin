@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: Auto Login
-Plugin URI: https://experiencedmg.com/
+Plugin URI: -
 Version: 1.0.1
-Author: Douglas Marketing Group
+Author: Shahin Zanbaghi
 Description: Auto login WordPress plugin.
 */
 
@@ -122,6 +122,8 @@ $rpass = rantext();
 	
 		if($ustatus == 1) {$sts = "On";$statcol="light";}else{$sts = "Off";$statcol="dark";}
 	
+	    if($wpdb->get_var($sqlusername)!=NULL) {$usts = "User Created";$ustatcol="success";}else{$usts = "Please create a random user";$ustatcol="danger";}
+	
 	if(isset($_POST['submit_cu'])) { 
 		$sqlusername = "SELECT `user_name` FROM wp_autologin WHERE ID=1";
 		global $wpdb;
@@ -145,11 +147,11 @@ $rpass = rantext();
             </div>
 
             <div class="input-group-append">
-            <samp><h6>Or open this link:</h6></samp>
+            <samp><small>Or open this link:</small></samp>
             </div>
 			
-			<div class="input-group-append mb-3">
-			<kbd id="stepone">'.$_SERVER['HTTP_HOST'].'/?create='.$upath.'</kbd>
+			<div class="input-group-append mb-3"><small>
+			<kbd id="stepone">'.$_SERVER['HTTP_HOST'].'/?create='.$upath.'</kbd></small>
 			</div>
 			  
 			<label for="path_al">Change the Path:</label>
@@ -167,6 +169,7 @@ $rpass = rantext();
               </div>		  
             </div>
 			</div>
+			<div class="badge badge-'.$ustatcol.'" > '. $usts .'</div>
 			<div class="badge badge-'.$statcol.'" >Status: '. $sts .'</div>
      </form>
 		  
