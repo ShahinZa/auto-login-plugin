@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: Auto Login
-Plugin URI: https://experiencedmg.com/
-Version: 1.0.6
-Author: Douglas Marketing Group
+Plugin URI: -
+Version: 1.0.1
+Author: Shahin Zanbaghi
 Description: Auto login WordPress plugin.
 */
 
