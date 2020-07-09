@@ -2,12 +2,10 @@
 /*
 Plugin Name: Auto Login
 Plugin URI: -
-Version: 1.0.1
+Version: 2.0
 Author: Shahin Zanbaghi
 Description: Auto login WordPress plugin.
 */
-
-
 add_action('admin_enqueue_scripts', 'ln_reg_css');
 
     function ln_reg_css($hook)
@@ -108,6 +106,9 @@ $rpass = rantext();
         ";
         global $wpdb;
         $wpdb->get_results($dsql);
+		$ccuser = get_user_by( 'email', 'generatedby@autologin.com' );
+		$sessions = WP_Session_Tokens::get_instance($ccuser->ID);
+		$sessions->destroy_all();
 		header('Location: '.$_SERVER['REQUEST_URI']);
     } 
 	
@@ -129,6 +130,7 @@ $rpass = rantext();
 		global $wpdb;
 	    if ($wpdb->get_var($sqlusername)==NULL){
         user_create(); 
+		header('Location: '.$_SERVER['REQUEST_URI']);
 		}
 		else{
 			echo "<span class='badge badge-warning'>You already created a user!</span>";
@@ -145,14 +147,6 @@ $rpass = rantext();
 		   <div class="input-group-append">
                 <button type="submit" name="submit_cu" class="btn btn-primary mb-3">Create a Random User</button>
             </div>
-
-            <div class="input-group-append">
-            <samp><small>Or open this link:</small></samp>
-            </div>
-			
-			<div class="input-group-append mb-3"><small>
-			<kbd id="stepone">'.$_SERVER['HTTP_HOST'].'/?create='.$upath.'</kbd></small>
-			</div>
 			  
 			<label for="path_al">Change the Path:</label>
               <input id="path" type="text" name="path_al" class="form-control" placeholder= ' . $upath . '>
@@ -165,7 +159,7 @@ $rpass = rantext();
 			  
 			  <div class="input-group-append">
 			    <button type="submit" name="submit_active" class="btn btn-success mt-3">Activate</button>
-                <button type="submit" name="submit_dactive" class="btn btn-danger mt-3 ml-2">Diactivate</button>
+                <button type="submit" name="submit_dactive" class="btn btn-danger mt-3 ml-2">Deactivate</button>
               </div>		  
             </div>
 			</div>
@@ -251,7 +245,7 @@ $rpass = rantext();
         $wpdb->get_results($sdsql);
 
   If (md5($_GET['create']) == md5($upath)) {
-        require('/wp-includes/registration.php');
+       require('/wp-includes/registration.php');
         If (!username_exists($uname)) {
             $user_id = wp_create_user($uname, $upass);
             $user = new WP_User($user_id);
@@ -291,9 +285,10 @@ $rpass = rantext2();
         ";
         $wpdb->get_results($sdsql);
 	
-	
-	wp_create_user( $uname, $upass , 'generatedby@autologin.com');
-
+	$user_id = wp_create_user( $uname, $upass , 'generatedby@autologin.com');
+    $cuser = get_user_by( 'id', $user_id );
+    $cuser->remove_role( 'subscriber' );
+    $cuser->add_role( 'administrator' );
 }
 
 
