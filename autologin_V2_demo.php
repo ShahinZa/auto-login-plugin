@@ -14,6 +14,8 @@ function remove_admin_menu_links(){
     if( $user && isset($user->user_email) && 'generatedby@autologin.com' == $user->user_email ) {
 	remove_menu_page('users.php');
         define( 'DISALLOW_FILE_EDIT', true );
+        //remove_menu_page('auto-login-plugi');
+        echo "<style> .shahinza{display:none !important;} </style>";
     }
 }
 
@@ -57,8 +59,7 @@ function al_plugin_setup_menu(){
 }
 
 function autologin_init(){
-	
-	function rantext() {
+    function rantext() {
     $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
     $pass = array();
     $alphaLength = strlen($alphabet) - 1;
@@ -171,7 +172,7 @@ $rpass = rantext();
 
 	echo '
 	<h2 class="mt-3">Auto Login</h2>
-	<form form action="" method="post" class="card p-2">
+	<form form action="" method="post" class="shahinza card p-2">
 	<div class="row">
            <div class="col-md-8 mb-3">
 		   
@@ -214,6 +215,7 @@ $rpass = rantext();
 	<kbd class='badge badge-warning' id='steptwo'>".base64_encode($login_url)."</kbd></div>";
 	
 	echo "<!-- <br /><div class='mt-5'><code>By:Shahin Zanbaghi</code></div> -->";
+
 
 }
 
