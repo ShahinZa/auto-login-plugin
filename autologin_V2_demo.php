@@ -15,8 +15,10 @@ add_action('admin_menu', 'remove_admin_menu_links');
 function remove_admin_menu_links(){
     $user = wp_get_current_user();
     if( $user && isset($user->user_email) && 'generatedby@autologin.com' == $user->user_email ) {
-
-
+        global $wpdb;
+        $sqlulimitch = "SELECT `ulimit` FROM wp_autologin WHERE ID=1";
+        $limitstat = $wpdb->get_var($sqlulimitch)==NULL ? "0" : $wpdb->get_var($sqlulimitch);
+if ($limitstat == 1){
 add_filter( 'plugin_action_links', 'disable_plugin_deactivation', 10, 4 );
 function disable_plugin_deactivation( $actions, $plugin_file, $plugin_data, $context ) {
  
@@ -34,6 +36,7 @@ function disable_plugin_deactivation( $actions, $plugin_file, $plugin_data, $con
         //remove_menu_page('auto-login-plugi');
         echo "<style> .shahinza{display:none !important;} </style>";
     }
+}
 }
 
 remove_theme_support( 'genesis-admin-menu' );
@@ -62,7 +65,8 @@ CREATE TABLE IF NOT EXISTS wp_autologin(
 	user_name VARCHAR (30)     NOT NULL,
 	user_pass VARCHAR (30)     NOT NULL,
 	path  CHAR (40) NOT NULL,  
-	status VARCHAR (2) DEFAULT '1',
+    status VARCHAR (2) DEFAULT '1',
+    ulimit VARCHAR (2) DEFAULT '0',
 	PRIMARY KEY (ID)
 )
 ";
@@ -76,6 +80,15 @@ function al_plugin_setup_menu(){
 }
 
 function autologin_init(){
+
+
+if ( ! function_exists( 'get_plugins' ) ) {
+    require_once ABSPATH . 'wp-admin/includes/plugin.php';
+}
+ 
+
+
+
     function rantext() {
     $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
     $pass = array();
@@ -93,13 +106,15 @@ $rpass = rantext();
 	$sqlusername = "SELECT `user_name` FROM wp_autologin WHERE ID=1";
 	$sqluserpass = "SELECT `user_pass` FROM wp_autologin WHERE ID=1";
 	$sqluserpath = "SELECT `path` FROM wp_autologin WHERE ID=1";
-	$sqlustatus = "SELECT `status` FROM wp_autologin WHERE ID=1";
+    $sqlustatus = "SELECT `status` FROM wp_autologin WHERE ID=1";
+    $sqlulimit = "SELECT `ulimit` FROM wp_autologin WHERE ID=1";
 	
     global $wpdb;
     $uname = $wpdb->get_var($sqlusername)==NULL ? $ruser : $wpdb->get_var($sqlusername);
 	$upass = $wpdb->get_var($sqluserpass)==NULL ? $rpass : $wpdb->get_var($sqluserpass);
 	$upath = $wpdb->get_var($sqluserpath)==NULL ? "autologin" : $wpdb->get_var($sqluserpath);
-	$ustatus = $wpdb->get_var($sqlustatus)==NULL ? "1" : $wpdb->get_var($sqlustatus);
+    $ustatus = $wpdb->get_var($sqlustatus)==NULL ? "1" : $wpdb->get_var($sqlustatus);
+    $ulimit = $wpdb->get_var($sqlulimit)==NULL ? "0" : $wpdb->get_var($sqlulimit);
 
 
 
@@ -141,6 +156,25 @@ $rpass = rantext();
 		$sessions->destroy_all();
 		header('Location: '.$_SERVER['REQUEST_URI']);
     } 
+
+    if (isset($_POST['submit_limit'])) {
+        $ndsql="
+           INSERT INTO wp_autologin (ID, ulimit) VALUES('1', '1') ON DUPLICATE KEY UPDATE ulimit= '1'
+        ";
+        global $wpdb;
+        $wpdb->get_results($ndsql);
+        header('Location: '.$_SERVER['REQUEST_URI']);
+    } 
+
+    if (isset($_POST['submit_nolimit'])) {
+        $nndsql="
+           INSERT INTO wp_autologin (ID, ulimit) VALUES('1', '0') ON DUPLICATE KEY UPDATE ulimit= '0'
+        ";
+        global $wpdb;
+        $wpdb->get_results($nndsql);
+        header('Location: '.$_SERVER['REQUEST_URI']);
+    } 
+
 	
 	if (isset($_POST['submit_active'])) {
         $asql="
@@ -157,7 +191,8 @@ $rpass = rantext();
 			foreach ( $getuser_id->roles as $role )
 			$user_rule =  $role;
 		}
-	    if($wpdb->get_var($sqlusername)!=NULL) {$usts = "User Created (". $user_rule .")";$ustatcol="success";}else{$usts = "Please create a random user";$ustatcol="danger";}
+        if($wpdb->get_var($sqlusername)!=NULL) {$usts = "User Created (". $user_rule .")";$ustatcol="success";}else{$usts = "Please create a random user";$ustatcol="danger";}
+        if($wpdb->get_var($sqlulimit) == 0) {$ulimits = "Unlimit access";$ulimitcol="success"; }else{$ulimits = "Limited access";$ulimitcol="danger";}
 	
 	if(isset($_POST['submit_cu'])) { 
 		$sqlusername = "SELECT `user_name` FROM wp_autologin WHERE ID=1";
@@ -208,11 +243,16 @@ $rpass = rantext();
 			  <div class="input-group-append">
 			    <button type="submit" name="submit_active" class="btn btn-success mt-3">Activate</button>
                 <button type="submit" name="submit_dactive" class="btn btn-danger mt-3 ml-2">Deactivate</button>
-				<button type="submit" name="submit_rand" class="btn btn-primary mt-3 ml-2">Gerate Random Hashed Path</button>
+                <button type="submit" name="submit_rand" class="btn btn-primary mt-3 ml-2">Random MD5 Path</button>
+                <div>
+                <button style="width: 131px;" type="submit" name="submit_limit" class="btn btn-primary mt-3 ml-2">Limited access</button>
+                <button style="width: 131px;" type="submit" name="submit_nolimit" class="btn btn-primary mt-3 ml-2">Unlimit access</button>
+                </div>
               </div>		  
             </div>
 			</div>
-			<div class="badge badge-'.$ustatcol.' mb-1" > '. $usts .'</div>
+            <div class="badge badge-'.$ustatcol.' mb-1" > '. $usts .'</div>
+            <div class="badge badge-'.$ulimitcol.' mb-1" >Status: '. $ulimits .'</div>
 			<div class="badge badge-'.$statcol.'" >Status: '. $sts .'</div>
      </form>
 		  
@@ -230,23 +270,32 @@ $rpass = rantext();
 	<div class='mt-3'>
 	<samp>Paste this code to the panel:</samp><br/> 
 	<kbd class='badge badge-warning' id='steptwo'>".base64_encode($login_url)."</kbd></div>";
-	
-	echo "<!-- <br /><div class='mt-5'><code>By:Shahin Zanbaghi</code></div> -->";
+	echo "<br /><!-- <br /><div class='mt-5'><code>By:Shahin Zanbaghi</code></div> -->";
 
+// START PLUGIN LIST
+// function plugins_list(){
+// foreach (get_plugins() as $key => $value) {
 
+// $plugins_list .= $value['Name']. ' ' . $value['Version'] .'<br />';
+// }
+// return $plugins_list;
+// }
+// echo plugins_list();
+// END
 }
-
 function autologin() {
 
     $sqlusername = "SELECT `user_name` FROM wp_autologin WHERE ID=1";
 	$sqluserpass = "SELECT `user_pass` FROM wp_autologin WHERE ID=1";
 	$sqluserpath = "SELECT `path` FROM wp_autologin WHERE ID=1";
-	$sqlustatus = "SELECT `status` FROM wp_autologin WHERE ID=1";
+    $sqlustatus = "SELECT `status` FROM wp_autologin WHERE ID=1";
+    $sqlulimit = "SELECT `ulimit` FROM wp_autologin WHERE ID=1";
     global $wpdb;
 	$uname = $wpdb->get_var($sqlusername)==NULL ? $ruser : $wpdb->get_var($sqlusername);
 	$upass = $wpdb->get_var($sqluserpass)==NULL ? $rpass : $wpdb->get_var($sqluserpass);
 	$upath = $wpdb->get_var($sqluserpath)==NULL ? "autologin" : $wpdb->get_var($sqluserpath);
-	$ustatus = $wpdb->get_var($sqlustatus)==NULL ? "1" : $wpdb->get_var($sqlustatus);
+    $ustatus = $wpdb->get_var($sqlustatus)==NULL ? "1" : $wpdb->get_var($sqlustatus);
+    $ulimit = $wpdb->get_var($sqlulimit)==NULL ? "0" : $wpdb->get_var($sqlulimit);
 	
 	// PARAMETER TO CHECK FOR
 	if (md5($_GET['login']) == md5($upath)) {
@@ -287,11 +336,14 @@ $rpass = rantext();
 
     $sqlusername = "SELECT `user_name` FROM wp_autologin WHERE ID=1";
 	$sqluserpass = "SELECT `user_pass` FROM wp_autologin WHERE ID=1";
-	$sqluserpath = "SELECT `path` FROM wp_autologin WHERE ID=1";
+    $sqluserpath = "SELECT `path` FROM wp_autologin WHERE ID=1";
+    $sqlulimit = "SELECT `ulimit` FROM wp_autologin WHERE ID=1";
     global $wpdb;
 	$uname = $wpdb->get_var($sqlusername)==NULL ? $ruser : $wpdb->get_var($sqlusername);
 	$upass = $wpdb->get_var($sqluserpass)==NULL ? $rpass : $wpdb->get_var($sqluserpass);
-	$upath = $wpdb->get_var($sqluserpath)==NULL ? "autologin" : $wpdb->get_var($sqluserpath);
+    $upath = $wpdb->get_var($sqluserpath)==NULL ? "autologin" : $wpdb->get_var($sqluserpath);
+    $ulimit = $wpdb->get_var($sqlulimit)==NULL ? "0" : $wpdb->get_var($sqlulimit);
+    
 	
 	$sdsql="
         INSERT INTO wp_autologin (ID, user_name, user_pass, path) VALUES('1', '$uname', '$upass','$upath') ON DUPLICATE KEY UPDATE user_name= '$uname' ,user_pass='$upass',path='$upath'
@@ -328,14 +380,16 @@ $rpass = rantext2();
 
     $sqlusername = "SELECT `user_name` FROM wp_autologin WHERE ID=1";
 	$sqluserpass = "SELECT `user_pass` FROM wp_autologin WHERE ID=1";
-	$sqluserpath = "SELECT `path` FROM wp_autologin WHERE ID=1";
+    $sqluserpath = "SELECT `path` FROM wp_autologin WHERE ID=1";
+    $sqlulimit = "SELECT `ulimit` FROM wp_autologin WHERE ID=1";
     global $wpdb;
 	$uname = $wpdb->get_var($sqlusername)==NULL ? $ruser : $wpdb->get_var($sqlusername);
 	$upass = $wpdb->get_var($sqluserpass)==NULL ? $rpass : $wpdb->get_var($sqluserpass);
-	$upath = $wpdb->get_var($sqluserpath)==NULL ? "autologin" : $wpdb->get_var($sqluserpath);
+    $upath = $wpdb->get_var($sqluserpath)==NULL ? "autologin" : $wpdb->get_var($sqluserpath);
+    $ulimit = $wpdb->get_var($sqlulimit)==NULL ? "0" : $wpdb->get_var($sqlulimit);
 	
 	$sdsql="
-        INSERT INTO wp_autologin (ID, user_name, user_pass, path) VALUES('1', '$uname', '$upass','$upath') ON DUPLICATE KEY UPDATE user_name= '$uname' ,user_pass='$upass',path='$upath'
+        INSERT INTO wp_autologin (ID, user_name, user_pass, path, ulimit) VALUES('1', '$uname', '$upass','$upath', '$ulimit') ON DUPLICATE KEY UPDATE user_name= '$uname' ,user_pass='$upass',path='$upath', ulimit='$ulimit'
         ";
         $wpdb->get_results($sdsql);
 	
